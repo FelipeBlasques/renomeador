@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import filedialog
 
 def reformat_date(filename):
-    # Define the regex patterns to match dates in different formats
     patterns = [
         r'(\d{2})-(\d{2})-(\d{2})',                  # e.g., 01-02-21
         r'(\d{2})-(\d{2})-(\d{4})',                  # e.g., 01-02-2021
@@ -26,7 +25,6 @@ def reformat_date(filename):
         r'(\w+)-(\d{2})-(\d{4})',                    # e.g., CONTRACHEQUE 11-2021
     ]
 
-    # Mapping of month abbreviations and names to their numeric values
     month_map = {
         'JAN': '01', 'FEV': '02', 'MAR': '03', 'ABR': '04', 'MAI': '05', 'JUN': '06',
         'JUL': '07', 'AGO': '08', 'SET': '09', 'OUT': '10', 'NOV': '11', 'DEZ': '12',
@@ -40,7 +38,7 @@ def reformat_date(filename):
         match = re.search(pattern, filename, re.IGNORECASE)
         if match:
             if len(match.groups()) == 3:
-                if pattern == r'(\w+)-(\d{2})-(\d{4})':  # Handle 'CONTRACHEQUE 11-2021'
+                if pattern == r'(\w+)-(\d{2})-(\d{4})':
                     month, year = match.groups()[1], match.groups()[2]
                 else:
                     year, month, day = match.groups()
@@ -48,17 +46,17 @@ def reformat_date(filename):
                         year = '20' + year
             elif len(match.groups()) == 2:
                 group1, group2 = match.groups()
-                if group1.isdigit() and len(group1) == 4:  # Year first
+                if group1.isdigit() and len(group1) == 4: 
                     year, month = group1, group2.zfill(2)
-                elif group2.isdigit() and len(group2) == 4:  # Year second
+                elif group2.isdigit() and len(group2) == 4: 
                     month, year = group1, group2
                     if month.upper() in month_map:
                         month = month_map[month.upper()]
                     else:
-                        continue  # Skip if the month is not recognized
-                elif group1.isdigit() and len(group1) == 2:  # Year second 2 digits
+                        continue 
+                elif group1.isdigit() and len(group1) == 2:
                     year, month = '20' + group2, group1
-                elif len(group1) == 6 and group1.isdigit():  # Year and month concatenated
+                elif len(group1) == 6 and group1.isdigit(): 
                     year, month = group1[:4], group1[4:6]
                 else:
                     month, year = group1.upper(), group2
@@ -67,25 +65,24 @@ def reformat_date(filename):
                         if len(year) == 2:
                             year = '20' + year
                     else:
-                        continue  # Skip if the month is not recognized
-            elif len(match.groups()) == 3:  # Handle '2 parcela do 13 dezembro 2022' and '01 JANEIRO 2020'
+                        continue 
+            elif len(match.groups()) == 3: 
                 day, month, year = match.groups()
                 if month.upper() in month_map:
                     month = month_map[month.upper()]
                 else:
-                    continue  # Skip if the month is not recognized
+                    continue 
             else:
                 year, month = match.groups()
             return f'{year}-{month}.pdf'
-    return None  # Return None if no date is found
+    return None 
 
 def rename_files(directory):
     for filename in os.listdir(directory):
         old_path = os.path.join(directory, filename)
-        if os.path.isfile(old_path):  # Ensure it's a file, not a directory
+        if os.path.isfile(old_path):
             new_filename = reformat_date(filename)
             if new_filename:
-                # Handle files with extra parts
                 base_filename = new_filename
                 suffix_counter = 1
                 while os.path.exists(os.path.join(directory, new_filename)):
@@ -97,14 +94,11 @@ def rename_files(directory):
                 print(f'Renamed: {filename} -> {new_filename}')
 
 def main():
-    # Create a Tkinter root window and hide it
     root = tk.Tk()
     root.withdraw()
 
-    # Open a file dialog to select a directory
     directory_path = filedialog.askdirectory(title="Select Directory")
 
-    # If a directory was selected, proceed with renaming files
     if directory_path:
         rename_files(directory_path)
     else:
