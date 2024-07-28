@@ -39,12 +39,20 @@ def reformat_date(filename, patterns, month_map):
                             year = '20' + year
                     else:
                         continue  # Skip if the month is not recognized
-            elif len(groups) == 3:  # Handle '2 parcela do 13 dezembro 2022' and '01 JANEIRO 2020'
-                day, month, year = groups
-                if month.upper() in month_map:
-                    month = month_map[month.upper()]
+            elif len(groups) == 3:  # Handle '2 parcela do 13 dezembro 2022', '01 JANEIRO 2020', and 'Prestação de Contas Abril 2017-5'
+                if 'prestação de contas' in filename.lower():
+                    month, year, day = groups
+                    if month.upper() in month_map:
+                        month = month_map[month.upper()]
+                        return f'{year}-{month}-{day}.pdf'
+                    else:
+                        continue  # Skip if the month is not recognized
                 else:
-                    continue  # Skip if the month is not recognized
+                    day, month, year = groups
+                    if month.upper() in month_map:
+                        month = month_map[month.upper()]
+                    else:
+                        continue  # Skip if the month is not recognized
             else:
                 year, month = groups
             return f'{year}-{month}.pdf'
